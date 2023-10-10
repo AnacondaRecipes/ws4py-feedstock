@@ -22,7 +22,8 @@ requirements:
   host:
     - python
     - setuptools
-
+    - pip
+    - wheel
   run:
     - python
 
@@ -31,15 +32,19 @@ test:
     - ws4py
     - ws4py.client
     - ws4py.server
+  requires:
+    - pip
+  commands:
+    - pip check
 
 about:
   home: https://github.com/Lawouach/WebSocket-for-Python
   license_file:  LICENSE
-  license: BSD 3-Clause
+  license: BSD-3-Clause
   license_family: BSD
   summary: 'WebSocket client and server library for Python 2, 3, and PyPy'
   dev_url: https://github.com/Lawouach/WebSocket-for-Python
-  doc_url: https://ws4py.readthedocs.io/en/latest/
+  doc_url: https://ws4py.readthedocs.io
 
 extra:
   recipe-maintainers:
