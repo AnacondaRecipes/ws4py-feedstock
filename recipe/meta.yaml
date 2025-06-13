@@ -22,6 +22,11 @@ requirements:
   run:
     - python
 
+# AttributeError: module 'socket' has no attribute 'AF_UNIX'
+{% set tests_to_skip = "test_parse_unix_schemes" %}  # [win]
+# AssertionError: Did not wait for the appropriate amount of time: 0.529578
+{% set tests_to_skip = tests_to_skip + " or test_timeout_when_no_registered_fds" %}  # [win]
+
 test:
   source_files:
     - test
@@ -32,7 +37,8 @@ test:
   commands:
     - pip check
     - python -c "from importlib.metadata import version; assert(version('{{ name }}')=='{{ version }}')"
-    - pytest -v test
+    - pytest -v -k "not ({{ tests_to_skip }})" test  # [win]
+    - pytest -v test  # [not win]
   requires:
     - pip
     - pytest
