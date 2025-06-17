@@ -1,48 +1,58 @@
 {% set name = "ws4py" %}
-{% set version = "0.5.1" %}
-{% set bundle = "tar.gz" %}
-{% set hash_type = "sha256" %}
-{% set hash = "29d073d7f2e006373e6a848b1d00951a1107eb81f3742952be905429dc5a5483" %}
-{% set build = 1 %}
+{% set version = "0.6.0" %}
 
 package:
   name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  fn: {{ name }}-{{ version }}.{{ bundle }}
-  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.{{ bundle }}
-  {{ hash_type }}: {{ hash }}
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: 9f87b19b773f0a0744a38f3afa36a803286dd3197f0bb35d9b75293ec7002d19
 
 build:
-  number: 1
-  script: pip install . --no-deps --no-build-isolation --ignore-installed --no-cache-dir -vv
+  number: 0
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation --ignore-installed --no-cache-dir
 
 requirements:
   host:
     - python
-    - setuptools
     - pip
+    - setuptools
     - wheel
   run:
     - python
 
+# AttributeError: module 'socket' has no attribute 'AF_UNIX'
+{% set tests_to_skip = "test_parse_unix_schemes" %}  # [win]
+# AssertionError: Did not wait for the appropriate amount of time: 0.529578
+{% set tests_to_skip = tests_to_skip + " or test_timeout_when_no_registered_fds" %}  # [win]
+
 test:
+  source_files:
+    - test
   imports:
     - ws4py
     - ws4py.client
     - ws4py.server
-  requires:
-    - pip
   commands:
     - pip check
+    - python -c "from importlib.metadata import version; assert(version('{{ name }}')=='{{ version }}')"
+    - pytest -v -k "not ({{ tests_to_skip }})" test  # [win]
+    - pytest -v test  # [not win]
+  requires:
+    - pip
+    - pytest
+    - cherrypy
 
 about:
   home: https://github.com/Lawouach/WebSocket-for-Python
-  license_file:  LICENSE
+  license_file: LICENSE
   license: BSD-3-Clause
   license_family: BSD
-  summary: 'WebSocket client and server library for Python 2, 3, and PyPy'
+  summary: ws4py is a Python package implementing the WebSocket protocol as defined in RFC 6455.
+  description: |
+    ws4py is a Python package implementing the WebSocket protocol as defined in RFC 6455.
+    It comes with various server and client implementations and runs on CPython 2/3, PyPy and Android.
   dev_url: https://github.com/Lawouach/WebSocket-for-Python
   doc_url: https://ws4py.readthedocs.io
 
